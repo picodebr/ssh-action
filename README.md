@@ -39,9 +39,9 @@ jobs:
     steps:
       - name: List remote home directory
         uses: picodebr/ssh-action@v1
-          with:
-            ssh_key: ${{ secrets.SSH_KEY }}
-            ssh_user: ${{ secrets.SSH_USER }}
-            ssh_host: ${{ secrets.SSH_HOST }}
-            command: ls ~
+        with:
+          ssh_key: ${{ secrets.SSH_KEY }}
+          ssh_user: ${{ secrets.SSH_USER }}
+          ssh_host: ${{ secrets.SSH_HOST }}
+          command: ls ~
 ```
