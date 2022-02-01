@@ -27,7 +27,7 @@ _Note: This is meant to be used on an Ubuntu machine version 20.04.03 or newer._
 The following example shows how to list the remote host home directory everytime the master branch is updated.
 
 ```yml
-name: Deploy node.js
+name: List host home
 
 on:
   push:
