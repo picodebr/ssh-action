@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: List remote home directory
-        uses: picodebr/ssh-action
+        uses: picodebr/ssh-action@v1
           with:
             ssh_key: ${{ secrets.SSH_KEY }}
             ssh_user: ${{ secrets.SSH_USER }}
