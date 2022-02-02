@@ -37,7 +37,7 @@ runs:
       run: |
         ssh ${{ inputs.ssh_user }}@${{ inputs.ssh_host }} \
           -o PubKeyAuthentication=yes -o RequestTTY=no -o StrictHostKeyChecking=no \
-          -i $SSH_ACTION_KEY_NAME \
+          -i ~/.ssh/$SSH_ACTION_KEY_NAME \
           '${{ inputs.command }}'
 
     - name: remove ssh key
