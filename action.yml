@@ -22,32 +22,23 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: create ssh config file
+    - name: create ssh key file
       shell: bash
       run: |
         SSH_ACTION_KEY_NAME="KEY_$RANDOM"
         echo "SSH_ACTION_KEY_NAME=$SSH_ACTION_KEY_NAME" >> $GITHUB_ENV
 
-        SSH_ACTION_SERVER_NAME="SERVER_$RANDOM"
-        echo "SSH_ACTION_SERVER_NAME=$SSH_ACTION_SERVER_NAME" >> $GITHUB_ENV
-
         mkdir -p ~/.ssh
         echo '${{ inputs.ssh_key }}' > ~/.ssh/$SSH_ACTION_KEY_NAME
         sudo chmod 400 ~/.ssh/$SSH_ACTION_KEY_NAME
 
-        cat >> ~/.ssh/config <<FINISH
-        Host $SSH_ACTION_SERVER_NAME
-          Hostname ${{ inputs.ssh_host }}
-          User ${{ inputs.ssh_user }}
-          PubKeyAuthentication yes
-          RequestTTY no
-          StrictHostKeyChecking no
-          IdentityFile ~/.ssh/$SSH_ACTION_KEY_NAME
-        FINISH
-
     - name: run the command
       shell: bash
-      run: ssh $SSH_ACTION_SERVER_NAME '${{ inputs.command }}'
+      run: |
+        ssh ${{ inputs.ssh_user }}@${{ inputs.ssh_host }} \
+          -o PubKeyAuthentication=yes -o RequestTTY=no -o StrictHostKeyChecking=no \
+          -i $SSH_ACTION_KEY_NAME \
+          '${{ inputs.command }}'
 
     - name: remove ssh key
       if: always()
