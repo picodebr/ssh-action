@@ -30,12 +30,15 @@ runs:
     - name: create ssh key file
       shell: bash
       run: |
-        SSH_ACTION_KEY_NAME="KEY_$RANDOM"
-        echo "SSH_ACTION_KEY_NAME=$SSH_ACTION_KEY_NAME" >> $GITHUB_ENV
+        # create a key file name if necessary
+        if [[ -z ${SSH_ACTION_KEY_NAME+x} ]]; then
+          SSH_ACTION_KEY_NAME="KEY_$RANDOM"
+          echo "SSH_ACTION_KEY_NAME=$SSH_ACTION_KEY_NAME" >> $GITHUB_ENV
+        fi
 
         mkdir -p ~/.ssh
         echo '${{ inputs.ssh_key }}' > ~/.ssh/$SSH_ACTION_KEY_NAME
-        sudo chmod 400 ~/.ssh/$SSH_ACTION_KEY_NAME
+        sudo chmod 600 ~/.ssh/$SSH_ACTION_KEY_NAME
 
     - name: run the command
       id: run_command
@@ -48,12 +51,12 @@ runs:
           '${{ inputs.command }}' \
         )
 
-        # replace Github unhandled characters (::set-output don't support multiline)
+        # replace Github unhandled characters (::set-output doesn't support multiline)
         ACTION_RESPONSE="${ACTION_RESPONSE//'%'/'%25'}"
         ACTION_RESPONSE="${ACTION_RESPONSE//$'\n'/'%0A'}"
         ACTION_RESPONSE="${ACTION_RESPONSE//$'\r'/'%0D'}"
 
-        echo "::set-output name=response::$ACTION_RESPONSE"
+        echo "::set-output name=response::$(echo $ACTION_RESPONSE)"
 
     - name: remove ssh key
       if: always()
