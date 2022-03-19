@@ -19,6 +19,11 @@ inputs:
     description: command to be executed in the remote host
     required: true
 
+outputs:
+  output:
+    description: output from the given command
+    value: ${{ steps.run_command.outputs.response }}
+
 runs:
   using: composite
   steps:
@@ -33,12 +38,22 @@ runs:
         sudo chmod 400 ~/.ssh/$SSH_ACTION_KEY_NAME
 
     - name: run the command
+      id: run_command
       shell: bash
       run: |
-        ssh ${{ inputs.ssh_user }}@${{ inputs.ssh_host }} \
+        ACTION_RESPONSE=$( \
+          ssh ${{ inputs.ssh_user }}@${{ inputs.ssh_host }} \
           -o PubKeyAuthentication=yes -o RequestTTY=no -o StrictHostKeyChecking=no \
           -i ~/.ssh/$SSH_ACTION_KEY_NAME \
-          '${{ inputs.command }}'
+          '${{ inputs.command }}' \
+        )
+
+        # replace Github unhandled characters (::set-output don't support multiline)
+        ACTION_RESPONSE="${ACTION_RESPONSE//'%'/'%25'}"
+        ACTION_RESPONSE="${ACTION_RESPONSE//$'\n'/'%0A'}"
+        ACTION_RESPONSE="${ACTION_RESPONSE//$'\r'/'%0D'}"
+
+        echo "::set-output name=response::$ACTION_RESPONSE"
 
     - name: remove ssh key
       if: always()
